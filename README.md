@@ -6,7 +6,7 @@ are unlocked. The project allows to perform following operations:
 
 1. Transactions History
 2. Withdraw
-3. 3. Deposit
+3. Deposit
 4. Transfer
 5. Quit
 For Demo Click
