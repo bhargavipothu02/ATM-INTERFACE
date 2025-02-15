@@ -1,0 +1,128 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Account {
+    private String userId;
+    private String userPin;
+    private double balance;
+    private ArrayList<String> transactionHistory;
+
+    public Account(String userId, String userPin, double balance) {
+        this.userId = userId;
+        this.userPin = userPin;
+        this.balance = balance;
+        this.transactionHistory = new ArrayList<>();
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getUserPin() {
+        return userPin;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void deposit(double amount) {
+        balance += amount;
+        transactionHistory.add("Deposited: $" + amount);
+    }
+
+    public void withdraw(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            transactionHistory.add("Withdrew: $" + amount);
+        } else {
+            System.out.println("Insufficient balance.");
+        }
+    }
+
+    public void transfer(Account targetAccount, double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            targetAccount.deposit(amount);
+            transactionHistory.add("Transferred: $" + amount + " to " + targetAccount.getUserId());
+        } else {
+            System.out.println("Insufficient balance.");
+        }
+    }
+
+    public void printTransactionHistory() {
+        System.out.println("Transaction History:");
+        for (String transaction : transactionHistory) {
+            System.out.println(transaction);
+        }
+    }
+}
+
+public class ATM {
+    private static Account currentAccount;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Account account1 = new Account("user1", "1234", 1000.0);
+        Account account2 = new Account("user2", "5678", 2000.0);
+
+        System.out.print("Enter User ID: ");
+        String userId = scanner.nextLine();
+        System.out.print("Enter User PIN: ");
+        String userPin = scanner.nextLine();
+
+        if (validateLogin(account1, userId, userPin)) {
+            currentAccount = account1;
+        } else if (validateLogin(account2, userId, userPin)) {
+            currentAccount = account2;
+        } else {
+            System.out.println("Invalid User ID or PIN.");
+            return;
+        }
+
+        while (true) {
+            System.out.println("\nATM Menu:");
+            System.out.println("1. Transaction History");
+            System.out.println("2. Withdraw");
+            System.out.println("3. Deposit");
+            System.out.println("4. Transfer");
+            System.out.println("5. Quit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    currentAccount.printTransactionHistory();
+                    break;
+                case 2:
+                    System.out.print("Enter amount to withdraw: ");
+                    double withdrawAmount = scanner.nextDouble();
+                    currentAccount.withdraw(withdrawAmount);
+                    break;
+                case 3:
+                    System.out.print("Enter amount to deposit: ");
+                    double depositAmount = scanner.nextDouble();
+                    currentAccount.deposit(depositAmount);
+                    break;
+                case 4:
+                    System.out.print("Enter target User ID: ");
+                    scanner.nextLine(); // consume newline
+                    String targetUserId = scanner.nextLine();
+                    System.out.print("Enter amount to transfer: ");
+                    double transferAmount = scanner.nextDouble();
+                    Account targetAccount = targetUserId.equals(account1.getUserId()) ? account1 : account2;
+                    currentAccount.transfer(targetAccount, transferAmount);
+                    break;
+                case 5:
+                    System.out.println("Thank you for using the ATM. Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
+    private static boolean validateLogin(Account account, String userId, String userPin) {
+        return account.getUserId().equals(userId) && account.getUserPin().equals(userPin);
+    }
+}
